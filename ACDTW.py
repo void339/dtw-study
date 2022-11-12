@@ -1,10 +1,17 @@
 
 #https://blog.csdn.net/weixin_43945848/article/details/120777669
 import numpy as np
+from utils import *
 #来自官方库的示例，代码未动，但注解原创。
 #y是x的子序列，从x的第三个数字开始一一匹配
 x = np.array([2, 5, 4]).reshape(-1, 1)
 y = np.array([1, 2, 3]).reshape(-1, 1)
+
+
+x_right_sin,y_right_sin = xy_right_sin(x, y)
+x_left_sin,y_left_sin = xy_left_sin(x, y)
+print(x_right_sin,x_left_sin,'ss')
+
 #https://blog.csdn.net/weixin_39729115/article/details/109926607
 # python引入自己写的文件_python引入导入自定义模块和外部文件
 from dtw01 import *
@@ -44,8 +51,12 @@ from dtw01 import *
 #
 # print(sum_Row,sum_List ,'行列和')
 
+weight = 0.6
 
-dist = lambda x, y: np.abs(x - y)
+# dist = lambda x, y:  np.abs(x - y)
+
+
+
 
 warp = 1
 w = inf
@@ -80,7 +91,7 @@ print(D1, 'D1-1')
 for i in range(r):
     for j in range(c):
         if (isinf(w) or (max(0, i - w) <= j <= min(c, i + w))):
-            D1[i, j] = dist(x[i], y[j])
+            D1[i, j] = dist(x[i], y[j],weight,x_right_sin[i],y_right_sin[j],x_left_sin[i],y_left_sin[j])
 print(D1, 'D1-2 计算距离矩阵')
 C = D1.copy()
 print(C, 'C')
