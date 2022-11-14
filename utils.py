@@ -1,6 +1,7 @@
 import numpy as np
 from dtw01 import *
 import math
+import re
 #y是x的子序列，从x的第三个数字开始一一匹配
 
 def xy_right_sin(x, y):
@@ -58,4 +59,26 @@ def xy_left_sin(x, y):
 def dist(x,y,weight,x_right_sin,y_right_sin,x_left_sin,y_left_sin):
     dist = weight * np.abs(x - y) + (1 - weight)/2 * (np.abs(np.array(x_right_sin)-np.array(y_right_sin))+np.abs(np.array(x_left_sin)-np.array(y_left_sin)))
     return dist
+
+
+
+def __readFileTxt(filename):
+    """读取txt文件"""
+
+    f = open(filename)
+    data = f.read()
+    f.close()
+    lineList = re.split('[ \n |:]', data)
+    data = []
+    label = []
+    i = 0
+
+    for line in lineList:
+        if i % 2 == 0:
+            data.append(line)
+            i = i + 1
+        else:
+            label.append(line)
+            i = i + 1
+    return data, label
 
