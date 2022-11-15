@@ -9,12 +9,8 @@ from utils import __readFileTxt
 # x = np.array([2, 5, 4]).reshape(-1, 1)
 # y = np.array([1, 2, 3]).reshape(-1, 1)
 
-beef_data = np.loadtxt(r'C:\Users\86182\Desktop\Beef\Beef_TRAIN.txt')
-x = beef_data[0][1:]
-y = beef_data[29][1:]
 
-x_right_sin,y_right_sin = xy_right_sin(x, y)
-x_left_sin,y_left_sin = xy_left_sin(x, y)
+
 # print(x_right_sin,x_left_sin, 'ss')
 
 #https://blog.csdn.net/weixin_39729115/article/details/109926607
@@ -55,85 +51,90 @@ from dtw01 import *
 #     sum_List.append(a)
 #
 # print(sum_Row,sum_List ,'行列和')
+def acdtw(x, y):
+    x_right_sin, y_right_sin = xy_right_sin(x, y)
+    x_left_sin, y_left_sin = xy_left_sin(x, y)
+    weight = 0.6
 
-weight = 0.6
-
-# dist = lambda x, y:  np.abs(x - y)
+    # dist = lambda x, y:  np.abs(x - y)
 
 
 
 
-warp = 1
-w = inf
-s = 1.0
+    warp = 1
+    w = inf
+    s = 1.0
 
-assert len(x)
-assert len(y)
-assert isinf(w) or (w >= abs(len(x) - len(y)))
-assert s > 0
+    assert len(x)
+    assert len(y)
+    assert isinf(w) or (w >= abs(len(x) - len(y)))
+    assert s > 0
 
-r, c = len(x), len(y) # r行 c列
+    r, c = len(x), len(y) # r行 c列
 
-D0 = zeros((r + 1, c + 1))
-D0[0, 1:] = inf
-D0[1:, 0] = inf
-# print(D0, 'D0-1 初始化累计距离矩阵')
+    D0 = zeros((r + 1, c + 1))
+    D0[0, 1:] = inf
+    D0[1:, 0] = inf
+    # print(D0, 'D0-1 初始化累计距离矩阵')
 
-Dq = zeros((r + 1, c + 1))
-Dq[0, 1:] = 1
-Dq[1:, 0] = 1
-Dq[0, 0] = 1
-# print(Dq, 'Dq-1 初始化累计距离矩阵')
+    Dq = zeros((r + 1, c + 1))
+    Dq[0, 1:] = 1
+    Dq[1:, 0] = 1
+    Dq[0, 0] = 1
+    # print(Dq, 'Dq-1 初始化累计距离矩阵')
 
-Dc = zeros((r + 1, c + 1))
-Dc[0, 1:] = 1
-Dc[1:, 0] = 1
-Dc[0, 0] = 1
-# print(Dc, 'Dc-1 初始化累计距离矩阵')
+    Dc = zeros((r + 1, c + 1))
+    Dc[0, 1:] = 1
+    Dc[1:, 0] = 1
+    Dc[0, 0] = 1
+    # print(Dc, 'Dc-1 初始化累计距离矩阵')
 
-D1 = D0[1:, 1:]  # view
-# print(D1, 'D1-1')
-for i in range(r):
-    for j in range(c):
-        if (isinf(w) or (max(0, i - w) <= j <= min(c, i + w))):
-            D1[i, j] = dist(x[i], y[j],weight,x_right_sin[i],y_right_sin[j],x_left_sin[i],y_left_sin[j])
-# print(D1, 'D1-2 计算距离矩阵')
-C = D1.copy()
-# print(C, 'C')
-jrange = range(c)
-# print(jrange, 'jrange-0 列数')
-# print(D0, 'D0-2 赋值距离后但还未累计的累计距离矩阵')
-for i in range(r):  # i 行数
-    for j in jrange:  # j 列数
-        min_list = [D0[i, j]]
-        # print(min_list, 'min_list-j')
-        for k in range(1, warp + 1):
-            if 0<r/c<=1/2 or 0<c/r<1/2:
-                i_k = min(i + k, r)
-                j_k = min(j + k, c)
-                min_list += [D0[i_k, j] + Dc[i + 1, j]*(r+c)/(2*max(r, c)*D1[i, j]), D0[i, j_k] + Dq[i,j+1]*(r+c)/(2*max(r, c))*D1[i, j]]
-                # print(r,c,D0[i_k, j],D1[i, j],'r,c,D0[i_k, j],D1[i, j]')
-            else:
-                i_k = min(i + k, r)
-                j_k = min(j + k, c)
-                min_list += [D0[i_k, j] + Dc[i + 1, j]*(2*max(r, c)/(r+c)*D1[i, j]), D0[i, j_k] + Dq[i,j+1]*2*max(r, c)/(r+c)*D1[i, j]]
-            #     print(r, c,  D0[i, j_k], D1[i, j],D0[i, j_k] + Dq[i,j+1]*2*max(r, c)/(r+c)*D1[i, j],D1[i, j], 'r,c,D0[i_k, j],D1[i, j],add')
-            # print(min_list, 'min_list-k')
-        D1[i, j] += min(min_list)
-        # print(D1[i, j])
-        # print(min_list.index(min(min_list)))
-        if min_list.index(min(min_list)) == 0:
-            Dq[i+1, j+1] = 1
-            Dc[i + 1, j + 1] = 1
-        if min_list.index(min(min_list)) == 1:
-            Dq[i + 1, j + 1] = Dq[i + 1, j] + 1
-            Dc[i + 1, j + 1] = 1
-        if min_list.index(min(min_list)) == 2:
-            Dq[i+1, j+1] = 1
-            Dc[i + 1, j + 1] = Dc[i, j + 1] + 1
-# print(D1, 'D1-3 累计距离矩阵')
-# print(Dq, 'Dq-3 累计距离矩阵')
-# print(Dc, 'Dc-3 累计距离矩阵')
+    D1 = D0[1:, 1:]  # view
+    # print(D1, 'D1-1')
+    for i in range(r):
+        for j in range(c):
+            if (isinf(w) or (max(0, i - w) <= j <= min(c, i + w))):
+                D1[i, j] = dist(x[i], y[j],weight,x_right_sin[i],y_right_sin[j],x_left_sin[i],y_left_sin[j])
+    # print(D1, 'D1-2 计算距离矩阵')
+    C = D1.copy()
+    # print(C, 'C')
+    jrange = range(c)
+    # print(jrange, 'jrange-0 列数')
+    # print(D0, 'D0-2 赋值距离后但还未累计的累计距离矩阵')
+    for i in range(r):  # i 行数
+        for j in jrange:  # j 列数
+            min_list = [D0[i, j]]
+            # print(min_list, 'min_list-j')
+            for k in range(1, warp + 1):
+                if 0<r/c<=1/2 or 0<c/r<1/2:
+                    i_k = min(i + k, r)
+                    j_k = min(j + k, c)
+                    min_list += [D0[i_k, j] + Dc[i + 1, j]*(r+c)/(2*max(r, c)*D1[i, j]), D0[i, j_k] + Dq[i,j+1]*(r+c)/(2*max(r, c))*D1[i, j]]
+                    # print(r,c,D0[i_k, j],D1[i, j],'r,c,D0[i_k, j],D1[i, j]')
+                else:
+                    i_k = min(i + k, r)
+                    j_k = min(j + k, c)
+                    min_list += [D0[i_k, j] + Dc[i + 1, j]*(2*max(r, c)/(r+c)*D1[i, j]), D0[i, j_k] + Dq[i,j+1]*2*max(r, c)/(r+c)*D1[i, j]]
+                #     print(r, c,  D0[i, j_k], D1[i, j],D0[i, j_k] + Dq[i,j+1]*2*max(r, c)/(r+c)*D1[i, j],D1[i, j], 'r,c,D0[i_k, j],D1[i, j],add')
+                # print(min_list, 'min_list-k')
+            D1[i, j] += min(min_list)
+            # print(D1[i, j])
+            # print(min_list.index(min(min_list)))
+            if min_list.index(min(min_list)) == 0:
+                Dq[i+1, j+1] = 1
+                Dc[i + 1, j + 1] = 1
+            if min_list.index(min(min_list)) == 1:
+                Dq[i + 1, j + 1] = Dq[i + 1, j] + 1
+                Dc[i + 1, j + 1] = 1
+            if min_list.index(min(min_list)) == 2:
+                Dq[i+1, j+1] = 1
+                Dc[i + 1, j + 1] = Dc[i, j + 1] + 1
+    # print(D1, 'D1-3 累计距离矩阵')
+    # print(Dq, 'Dq-3 累计距离矩阵')
+    # print(Dc, 'Dc-3 累计距离矩阵')
+    path = _traceback(D0)
+    return D1[-1, -1], C, D1, path
+
 def _traceback(D):
     i, j = array(D.shape) - 2
     p, q = [i], [j]
@@ -155,6 +156,6 @@ def _traceback(D):
     # print(array(q), 'array(q)')
     return array(p), array(q)
 
-path = _traceback(D0)
+
 
 # print(path)

@@ -1,5 +1,8 @@
 import numpy as np
-x = np.loadtxt(r'C:\Users\86182\Desktop\Beef\Beef_TRAIN.txt')
-print(x.shape)
-x = x[0]
-print(x[1:])
+from sklearn import preprocessing
+import numpy as np
+
+for i in range(5):
+    for j in range(5):
+        if i > j:
+            print(i,j,'-')

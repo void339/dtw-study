@@ -82,3 +82,7 @@ def __readFileTxt(filename):
             i = i + 1
     return data, label
 
+def ZscoreNormalization(x):
+  """Z-score normaliaztion"""
+  x = (x - np.mean(x)) / np.std(x)
+  return x
